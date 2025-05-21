@@ -1,43 +1,34 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Киноtest</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Кинотеатр | Билетон</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <header class="header-container">
-        <div class="header-content">
-            <h1>🎬 Онлайн-Бронирование-Тестинг</h1>
-            <p>Тестируем работу кинотеатра</p>
-        </div>
-    </header>
-    <main class="container">
-        <h1>Бронирование билетов в кинотеатр</h1>
-         <div class="date-selection">
-            <h2>Выберите дату:</h2>
-            <div class="date-buttons" id="dateButtons"></div>
-        </div>
-        
-        <div class="time-selection">
-            <h2>Выберите сеанс:</h2>
-            <div class="time-buttons" id="timeButtons"></div>
-        </div>
-        
-        <div class="cinema-hall">
-            <h2>Зал: <span id="selectedDateTime"></span></h2>
-            <div class="screen">ЭКРАН</div>
-            <div class="seats" id="seatsContainer"></div>
-        </div>
-        
-        <div class="booking-info">
-            <div id="selectedSeatsInfo"></div>
-            <button id="bookButton" disabled>Забронировать</button>
-        </div>
-    </main>
-    <script src="script.js"></script>
+  <header class="top-bar">
+    <div class="logo-block">
+      <div class="logo"></div>
+      <div class="slogan">Создаем бронирование для обучения</div>
+    </div>
+    <div class="city-selector">Москва</div>
+  </header>
+
+  <main class="main-wrapper">
+    <div class="movie-card">
+      <div class="poster-placeholder"></div>
+      <div class="movie-info">
+        <h1 class="movie-title">Громовержцы*</h1>
+        <p class="movie-desc">Команда злодеев отправляется на задание по приказу правительства.</p>
+        <p class="movie-time">Хронометраж: 2 ч 7 мин</p>
+      </div>
+    </div>
+
+    <div class="day-scroll" id="dateButtonsContainer"></div>
+
+    <div class="session-list" id="timeButtonsContainer"></div>
+  </main>
+  <script src="script.js"></script>
 </body>
 </html>
