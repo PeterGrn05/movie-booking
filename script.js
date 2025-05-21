@@ -70,7 +70,7 @@ function loadSessions(date) {
         timeBtn.disabled = true;
         timeBtn.classList.add('past');
       } else {
-        timeBtn.onclick = () => alert(`Вы выбрали ${timeStr} в Кинотеатр №${i}`);
+        timeBtn.onclick = () => openSeatModal(`Кинотеатр №${i}`, timeStr);
       }
 
       sessionTimes.appendChild(timeBtn);
@@ -84,3 +84,67 @@ function loadSessions(date) {
 
 // Инициализация
 loadSessions(days[0]);
+
+// ========== Модалка выбора мест ==========
+const seatModal = document.getElementById('seatModal');
+const seatsGrid = document.getElementById('seatsGrid');
+const confirmSeatsBtn = document.getElementById('confirmSeats');
+
+// Хранилище выбранных мест
+let selectedSeats = [];
+let currentSessionInfo = null;
+
+// Отображение попапа
+function openSeatModal(cinema, time) {
+  currentSessionInfo = { cinema, time };
+  selectedSeats = [];
+
+  // Очистка и генерация мест (10 рядов по 10 мест)
+  seatsGrid.innerHTML = '';
+  for (let row = 1; row <= 5; row++) {
+    for (let seat = 1; seat <= 10; seat++) {
+      const seatDiv = document.createElement('div');
+      seatDiv.className = 'seat';
+      seatDiv.dataset.seat = `R${row}S${seat}`;
+
+      // Тут можно добавить проверку брони с localStorage
+      const isBooked = false; // (заглушка)
+
+      if (isBooked) {
+        seatDiv.classList.add('booked');
+      } else {
+        seatDiv.onclick = () => toggleSeat(seatDiv);
+      }
+
+      seatsGrid.appendChild(seatDiv);
+    }
+  }
+
+  seatModal.classList.remove('hidden');
+}
+
+// Переключение мест
+function toggleSeat(seatDiv) {
+  const seatId = seatDiv.dataset.seat;
+  const index = selectedSeats.indexOf(seatId);
+  if (index >= 0) {
+    selectedSeats.splice(index, 1);
+    seatDiv.classList.remove('selected');
+  } else {
+    selectedSeats.push(seatId);
+    seatDiv.classList.add('selected');
+  }
+}
+
+// Закрытие и подтверждение
+confirmSeatsBtn.onclick = () => {
+  if (selectedSeats.length === 0) {
+    alert('Пожалуйста, выберите места');
+    return;
+  }
+
+  // Тут можно добавить сохранение в localStorage или отправку на сервер
+  alert(`Вы забронировали: ${selectedSeats.join(', ')} для ${currentSessionInfo.time} в ${currentSessionInfo.cinema}`);
+
+  seatModal.classList.add('hidden');
+};
