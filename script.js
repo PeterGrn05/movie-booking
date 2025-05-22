@@ -1,7 +1,6 @@
 const dateButtonsContainer = document.getElementById('dateButtonsContainer');
 const timeButtonsContainer = document.getElementById('timeButtonsContainer');
 
-// Получаем даты на неделю вперёд
 const today = new Date();
 const days = Array.from({ length: 7 }, (_, i) => {
   const date = new Date(today);
@@ -9,7 +8,6 @@ const days = Array.from({ length: 7 }, (_, i) => {
   return date;
 });
 
-// Отображаем кнопки с датами
 days.forEach((date, index) => {
   const btn = document.createElement('button');
   btn.className = 'day-btn' + (index === 0 ? ' selected' : '');
@@ -28,6 +26,8 @@ days.forEach((date, index) => {
 
   dateButtonsContainer.appendChild(btn);
 });
+
+loadSessions(days[0]);
 
 function loadSessions(date) {
   timeButtonsContainer.innerHTML = '';
@@ -51,30 +51,29 @@ function loadSessions(date) {
     sessionTimes.className = 'session-times';
 
     let sessionTime = new Date(date);
-    sessionTime.setHours(11, 0); // начало с 11:00
+    sessionTime.setHours(11, 0);
 
     const endTime = new Date(date);
-    endTime.setHours(23, 0); // конец в 23:00
+    endTime.setHours(23, 0);
 
     while (sessionTime <= endTime) {
-      const timeStr = sessionTime.toTimeString().slice(0, 5); // "HH:MM"
+      const timeStr = sessionTime.toTimeString().slice(0, 5);
 
       const timeBtn = document.createElement('button');
       timeBtn.className = 'time-btn';
       timeBtn.textContent = timeStr;
 
-      // Проверка на прошлое время
       const isPastSession = isToday && sessionTime <= now;
 
       if (isPastSession) {
         timeBtn.disabled = true;
         timeBtn.classList.add('past');
       } else {
-        timeBtn.onclick = () => openSeatModal(`Кинотеатр №${i}`, timeStr);
+        timeBtn.onclick = () => openSeatModal(`Кинотеатр №${i}`, date, timeStr);
       }
 
       sessionTimes.appendChild(timeBtn);
-      sessionTime.setMinutes(sessionTime.getMinutes() + 150); // шаг 2ч30м
+      sessionTime.setMinutes(sessionTime.getMinutes() + 150);
     }
 
     cinemaCard.appendChild(sessionTimes);
@@ -82,69 +81,108 @@ function loadSessions(date) {
   }
 }
 
-// Инициализация
-loadSessions(days[0]);
-
-// ========== Модалка выбора мест ==========
+// Модалка и выбор мест
 const seatModal = document.getElementById('seatModal');
 const seatsGrid = document.getElementById('seatsGrid');
 const confirmSeatsBtn = document.getElementById('confirmSeats');
+const closeModalBtn = document.getElementById('closeModal');
 
-// Хранилище выбранных мест
+const seatSelectionSection = document.getElementById('seatSelectionSection');
+const confirmationMessage = document.getElementById('confirmationMessage');
+
 let selectedSeats = [];
-let currentSessionInfo = null;
+let currentSessionKey = ''; // Ключ для localStorage
 
-// Отображение попапа
-function openSeatModal(cinema, time) {
-  currentSessionInfo = { cinema, time };
-  selectedSeats = [];
-
-  // Очистка и генерация мест (10 рядов по 10 мест)
-  seatsGrid.innerHTML = '';
-  for (let row = 1; row <= 5; row++) {
-    for (let seat = 1; seat <= 10; seat++) {
-      const seatDiv = document.createElement('div');
-      seatDiv.className = 'seat';
-      seatDiv.dataset.seat = `R${row}S${seat}`;
-
-      // Тут можно добавить проверку брони с localStorage
-      const isBooked = false; // (заглушка)
-
-      if (isBooked) {
-        seatDiv.classList.add('booked');
-      } else {
-        seatDiv.onclick = () => toggleSeat(seatDiv);
-      }
-
-      seatsGrid.appendChild(seatDiv);
-    }
-  }
-
+function openSeatModal(cinema, date, time) {
   seatModal.classList.remove('hidden');
+  selectedSeats = [];
+  currentSessionKey = generateSessionKey(cinema, date, time);
+  renderSeats();
+  // Скрываем финальное сообщение, показываем выбор
+  seatSelectionSection.classList.remove('hidden');
+  confirmationMessage.classList.add('hidden');
 }
 
-// Переключение мест
-function toggleSeat(seatDiv) {
-  const seatId = seatDiv.dataset.seat;
-  const index = selectedSeats.indexOf(seatId);
-  if (index >= 0) {
-    selectedSeats.splice(index, 1);
-    seatDiv.classList.remove('selected');
-  } else {
-    selectedSeats.push(seatId);
-    seatDiv.classList.add('selected');
+function generateSessionKey(cinema, date, time) {
+  const dateStr = date.toISOString().split('T')[0];
+  return `${cinema}_${dateStr}_${time}`;
+}
+
+function renderSeats() {
+  seatsGrid.innerHTML = '';
+
+  // Загружаем забронированные места
+  const bookedSeats = JSON.parse(localStorage.getItem(currentSessionKey)) || [];
+
+  for (let i = 0; i < 50; i++) {
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.dataset.index = i;
+
+    // Если место забронировано - добавляем класс booked и блокируем клик
+    if (bookedSeats.includes(i)) {
+      seat.classList.add('booked');
+    } else if (selectedSeats.includes(i)) {
+      // Если место выбрано сейчас (но не забронировано)
+      seat.classList.add('selected');
+      seat.addEventListener('click', () => toggleSeat(i, seat));
+    } else {
+      // Свободное место — можно выбрать
+      seat.addEventListener('click', () => toggleSeat(i, seat));
+    }
+
+    seatsGrid.appendChild(seat);
   }
 }
 
-// Закрытие и подтверждение
+function toggleSeat(index, element) {
+  const isSelected = selectedSeats.includes(index);
+  if (isSelected) {
+    selectedSeats = selectedSeats.filter(seat => seat !== index);
+    element.classList.remove('selected');
+  } else {
+    selectedSeats.push(index);
+    element.classList.add('selected');
+  }
+}
+
+function saveSelectedSeats() {
+  // Сохраняем в localStorage все забронированные места — предыдущие + новые
+  const bookedSeats = JSON.parse(localStorage.getItem(currentSessionKey)) || [];
+  const newBooked = [...new Set([...bookedSeats, ...selectedSeats])];
+  localStorage.setItem(currentSessionKey, JSON.stringify(newBooked));
+}
+
 confirmSeatsBtn.onclick = () => {
   if (selectedSeats.length === 0) {
     alert('Пожалуйста, выберите места');
     return;
   }
 
-  // Тут можно добавить сохранение в localStorage или отправку на сервер
-  alert(`Вы забронировали: ${selectedSeats.join(', ')} для ${currentSessionInfo.time} в ${currentSessionInfo.cinema}`);
+  saveSelectedSeats();
 
+  // Переключаем класс выбранных мест на booked
+  selectedSeats.forEach(index => {
+    const seatElem = seatsGrid.querySelector(`.seat[data-index='${index}']`);
+    if (seatElem) {
+      seatElem.classList.remove('selected');
+      seatElem.classList.add('booked');
+      // Убираем обработчик клика, чтобы нельзя было снять бронь
+      seatElem.replaceWith(seatElem.cloneNode(true));
+    }
+  });
+
+  // Очищаем текущий выбор, показываем сообщение
+  selectedSeats = [];
+
+  seatSelectionSection.classList.add('hidden');
+  confirmationMessage.classList.remove('hidden');
+};
+
+closeModalBtn.onclick = () => {
   seatModal.classList.add('hidden');
+
+  seatSelectionSection.classList.remove('hidden');
+  confirmationMessage.classList.add('hidden');
+  selectedSeats = [];
 };

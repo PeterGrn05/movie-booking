@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Кинотеатр | Билетон</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <header class="top-bar">
     <div class="logo-block">
@@ -31,12 +33,28 @@
   </main>
   <div id="seatModal" class="modal hidden">
   <div class="modal-content">
-    <h2 class="modal-title">Выберите места</h2>
-    <div class="screen-label">Экран</div>
-    <div id="seatsGrid" class="seats-grid"></div>
-    <button id="confirmSeats" class="confirm-btn">Забронировать</button>
+    
+    <!-- Фрейм выбора мест -->
+    <div id="seatSelectionSection">
+      <h2 class="modal-title">Выберите места</h2>
+      <div class="screen-label">Экран</div>
+      <div id="seatsGrid" class="seats-grid"></div>
+      <button id="confirmSeats" class="confirm-btn">Забронировать</button>
+    </div>
+
+    <!-- Финальное сообщение -->
+    <div id="confirmationMessage" class="hidden">
+      <div class="screen-label final-message">
+        Спасибо за бронирование! <br><br>
+        На данный момент, этот проект еще находится в состоянии локального положения.
+        Я сделал этот сайт для того чтобы научить себя применять свои навыки программирования в личном проекте.
+        Возможно в будущем смогу осуществить полностью этот проект.
+      </div>
+      <button id="closeModal" class="confirm-btn">Закрыть</button>
+    </div>
+
   </div>
 </div>
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
