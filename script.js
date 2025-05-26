@@ -81,7 +81,6 @@ function loadSessions(date) {
   }
 }
 
-// Модалка и выбор мест
 const seatModal = document.getElementById('seatModal');
 const seatsGrid = document.getElementById('seatsGrid');
 const confirmSeatsBtn = document.getElementById('confirmSeats');
@@ -91,14 +90,13 @@ const seatSelectionSection = document.getElementById('seatSelectionSection');
 const confirmationMessage = document.getElementById('confirmationMessage');
 
 let selectedSeats = [];
-let currentSessionKey = ''; // Ключ для localStorage
+let currentSessionKey = '';
 
 function openSeatModal(cinema, date, time) {
   seatModal.classList.remove('hidden');
   selectedSeats = [];
   currentSessionKey = generateSessionKey(cinema, date, time);
   renderSeats();
-  // Скрываем финальное сообщение, показываем выбор
   seatSelectionSection.classList.remove('hidden');
   confirmationMessage.classList.add('hidden');
 }
@@ -110,8 +108,6 @@ function generateSessionKey(cinema, date, time) {
 
 function renderSeats() {
   seatsGrid.innerHTML = '';
-
-  // Загружаем забронированные места
   const bookedSeats = JSON.parse(localStorage.getItem(currentSessionKey)) || [];
 
   for (let i = 0; i < 50; i++) {
@@ -119,15 +115,12 @@ function renderSeats() {
     seat.className = 'seat';
     seat.dataset.index = i;
 
-    // Если место забронировано - добавляем класс booked и блокируем клик
     if (bookedSeats.includes(i)) {
       seat.classList.add('booked');
     } else if (selectedSeats.includes(i)) {
-      // Если место выбрано сейчас (но не забронировано)
       seat.classList.add('selected');
       seat.addEventListener('click', () => toggleSeat(i, seat));
     } else {
-      // Свободное место — можно выбрать
       seat.addEventListener('click', () => toggleSeat(i, seat));
     }
 
@@ -147,7 +140,6 @@ function toggleSeat(index, element) {
 }
 
 function saveSelectedSeats() {
-  // Сохраняем в localStorage все забронированные места — предыдущие + новые
   const bookedSeats = JSON.parse(localStorage.getItem(currentSessionKey)) || [];
   const newBooked = [...new Set([...bookedSeats, ...selectedSeats])];
   localStorage.setItem(currentSessionKey, JSON.stringify(newBooked));
@@ -161,18 +153,15 @@ confirmSeatsBtn.onclick = () => {
 
   saveSelectedSeats();
 
-  // Переключаем класс выбранных мест на booked
   selectedSeats.forEach(index => {
     const seatElem = seatsGrid.querySelector(`.seat[data-index='${index}']`);
     if (seatElem) {
       seatElem.classList.remove('selected');
       seatElem.classList.add('booked');
-      // Убираем обработчик клика, чтобы нельзя было снять бронь
       seatElem.replaceWith(seatElem.cloneNode(true));
     }
   });
 
-  // Очищаем текущий выбор, показываем сообщение
   selectedSeats = [];
 
   seatSelectionSection.classList.add('hidden');
