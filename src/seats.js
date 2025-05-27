@@ -10,10 +10,12 @@ export function loadBookedSeats(sessionKey) {
 export function saveBookedSeats(sessionKey, selectedSeats) {
   const current = loadBookedSeats(sessionKey);
   const updated = [...new Set([...current, ...selectedSeats])];
+  console.log('Saving booked seats for', sessionKey, ':', updated);
   localStorage.setItem(sessionKey, JSON.stringify(updated));
 }
 
 export function toggleSeatState(selectedSeats, index) {
+  console.log('Toggling seat:', index, 'Current selection:', selectedSeats);
   const idx = selectedSeats.indexOf(index);
   if (idx >= 0) {
     return selectedSeats.filter(i => i !== index);

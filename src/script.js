@@ -47,6 +47,7 @@ function renderDateButtons() {
       document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       renderTimeButtons();
+      console.log('Selected date:', date);
     });
 
     dateButtonsContainer.appendChild(btn);
@@ -114,6 +115,7 @@ function renderSeats() {
     }
 
     seatsGrid.appendChild(seat);
+    console.log('Rendering seats. Booked:', loadBookedSeats(currentSessionKey));
   }
 }
 
@@ -122,7 +124,7 @@ confirmSeatsBtn.onclick = () => {
     alert('Пожалуйста, выберите места');
     return;
   }
-
+  console.log('Confirming seats:', selectedSeats);
   saveBookedSeats(currentSessionKey, selectedSeats);
   selectedSeats = [];
   seatSelectionSection.classList.add('hidden');
