@@ -13,6 +13,7 @@ const confirmSeatsBtn = document.getElementById('confirmSeats');
 const closeModalBtn = document.getElementById('closeModal');
 const seatSelectionSection = document.getElementById('seatSelectionSection');
 const confirmationMessage = document.getElementById('confirmationMessage');
+const closeModalCross = document.getElementById('closeModalCross');
 
 let selectedDate = new Date();
 let selectedSeats = [];
@@ -72,10 +73,22 @@ function renderTimeButtons() {
       btn.className = 'time-btn';
       btn.textContent = time;
 
-      btn.onclick = () => {
-        // eslint-disable-next-line no-undef
-        openSeatModal(cinema.name, selectedDate, time);
-      };
+      const [hours, minutes] = time.split(':').map(Number);
+      const sessionDate = new Date(selectedDate);
+      sessionDate.setHours(hours, minutes, 0, 0);
+
+      const now = new Date();
+      const isPast = sessionDate < now;
+
+      if (isPast) {
+        btn.classList.add('past');
+        btn.disabled = true;
+      } else {
+        btn.onclick = () => {
+          // eslint-disable-next-line no-undef
+          openSeatModal(cinema.name, selectedDate, time);
+        };
+      }
 
       sessionWrap.appendChild(btn);
     });
@@ -132,6 +145,13 @@ confirmSeatsBtn.onclick = () => {
 };
 
 closeModalBtn.onclick = () => {
+  seatModal.classList.add('hidden');
+  seatSelectionSection.classList.remove('hidden');
+  confirmationMessage.classList.add('hidden');
+  selectedSeats = [];
+};
+
+closeModalCross.onclick = () => {
   seatModal.classList.add('hidden');
   seatSelectionSection.classList.remove('hidden');
   confirmationMessage.classList.add('hidden');
