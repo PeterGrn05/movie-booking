@@ -109,26 +109,56 @@ window.openSeatModal = function (cinema, date, time) {
 
 function renderSeats() {
   seatsGrid.innerHTML = '';
+
+  const rows = 5;
+  const cols = 10;
   const booked = loadBookedSeats(currentSessionKey);
 
-  for (let i = 0; i < 50; i++) {
-    const seat = document.createElement('div');
-    seat.className = 'seat';
-    seat.dataset.index = i;
+  // Добавим верхнюю строку с номерами мест
+  const topRow = document.createElement('div');
+  topRow.className = 'seat-row label-row';
+  topRow.innerHTML = '<div class="corner-cell"></div>'; // уголок
 
-    if (booked.includes(i)) {
-      seat.classList.add('booked');
-    } else {
-      if (selectedSeats.includes(i)) seat.classList.add('selected');
+  for (let c = 1; c <= cols; c++) {
+    const label = document.createElement('div');
+    label.className = 'seat-label';
+    label.textContent = c;
+    topRow.appendChild(label);
+  }
 
-      seat.addEventListener('click', () => {
-        selectedSeats = toggleSeatState(selectedSeats, i);
-        renderSeats();
-      });
+  seatsGrid.appendChild(topRow);
+
+  for (let r = 0; r < rows; r++) {
+    const row = document.createElement('div');
+    row.className = 'seat-row';
+
+    // Добавим номер ряда слева
+    const rowLabel = document.createElement('div');
+    rowLabel.className = 'seat-label';
+    rowLabel.textContent = r + 1;
+    row.appendChild(rowLabel);
+
+    for (let c = 0; c < cols; c++) {
+      const index = r * cols + c;
+      const seat = document.createElement('div');
+      seat.className = 'seat';
+      seat.dataset.index = index;
+
+      if (booked.includes(index)) {
+        seat.classList.add('booked');
+      } else {
+        if (selectedSeats.includes(index)) seat.classList.add('selected');
+
+        seat.addEventListener('click', () => {
+          selectedSeats = toggleSeatState(selectedSeats, index);
+          renderSeats();
+        });
+      }
+
+      row.appendChild(seat);
     }
 
-    seatsGrid.appendChild(seat);
-    console.log('Rendering seats. Booked:', loadBookedSeats(currentSessionKey));
+    seatsGrid.appendChild(row);
   }
 }
 
@@ -140,14 +170,18 @@ confirmSeatsBtn.onclick = () => {
   console.log('Confirming seats:', selectedSeats);
   saveBookedSeats(currentSessionKey, selectedSeats);
   selectedSeats = [];
+
+  // Скрываем выбор, показываем сообщение
   seatSelectionSection.classList.add('hidden');
   confirmationMessage.classList.remove('hidden');
+  closeModalCross.classList.add('hidden-cross'); // Скрываем крестик
 };
 
 closeModalBtn.onclick = () => {
   seatModal.classList.add('hidden');
   seatSelectionSection.classList.remove('hidden');
   confirmationMessage.classList.add('hidden');
+  closeModalCross.classList.remove('hidden-cross'); // Показываем крестик снова
   selectedSeats = [];
 };
 
@@ -155,6 +189,7 @@ closeModalCross.onclick = () => {
   seatModal.classList.add('hidden');
   seatSelectionSection.classList.remove('hidden');
   confirmationMessage.classList.add('hidden');
+  closeModalCross.classList.remove('hidden-cross');
   selectedSeats = [];
 };
 
