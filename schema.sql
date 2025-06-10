@@ -1,47 +1,56 @@
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE Movie (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
   description TEXT,
-  duration_minutes INT,
-  poster_url VARCHAR(255)
+  duration_minutes INTEGER,
+  poster_url TEXT
 );
 
 CREATE TABLE Cinema (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  location VARCHAR(255)
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  location TEXT
 );
 
 CREATE TABLE Auditorium (
-  id SERIAL PRIMARY KEY,
-  cinema_id INT REFERENCES Cinema(id) ON DELETE CASCADE,
-  name VARCHAR(100),
-  rows INT,
-  cols INT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  cinema_id INTEGER,
+  name TEXT,
+  rows INTEGER,
+  cols INTEGER,
+  FOREIGN KEY (cinema_id) REFERENCES Cinema(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Seat (
-  id SERIAL PRIMARY KEY,
-  auditorium_id INT REFERENCES Auditorium(id) ON DELETE CASCADE,
-  row_number INT,
-  seat_number INT
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  auditorium_id INTEGER,
+  row_number INTEGER,
+  seat_number INTEGER,
+  FOREIGN KEY (auditorium_id) REFERENCES Auditorium(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Session (
-  id SERIAL PRIMARY KEY,
-  movie_id INT REFERENCES Movie(id) ON DELETE CASCADE,
-  auditorium_id INT REFERENCES Auditorium(id) ON DELETE CASCADE,
-  start_time TIMESTAMP NOT NULL
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  movie_id INTEGER,
+  auditorium_id INTEGER,
+  start_time TIMESTAMP NOT NULL,
+  FOREIGN KEY (movie_id) REFERENCES Movie(id) ON DELETE CASCADE,
+  FOREIGN KEY (auditorium_id) REFERENCES Auditorium(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Booking (
-  id SERIAL PRIMARY KEY,
-  session_id INT REFERENCES Session(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT NOW()
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id INTEGER,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES Session(id) ON DELETE CASCADE
 );
 
 CREATE TABLE BookingSeat (
-  id SERIAL PRIMARY KEY,
-  booking_id INT REFERENCES Booking(id) ON DELETE CASCADE,
-  seat_id INT REFERENCES Seat(id) ON DELETE CASCADE
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  booking_id INTEGER,
+  seat_id INTEGER,
+  FOREIGN KEY (booking_id) REFERENCES Booking(id) ON DELETE CASCADE,
+  FOREIGN KEY (seat_id) REFERENCES Seat(id) ON DELETE CASCADE
 );
